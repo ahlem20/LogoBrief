@@ -197,6 +197,63 @@ html[dir=rtl] .s1 h1{font-size:11cqw;line-height:1.15;top:4cqw}html[dir=rtl] .s1
 @media print{.lang{display:none}}
 @media print{body{background:#fff;padding:0}.slide{break-inside:avoid}}
 @media (prefers-color-scheme:dark){body{background:#1d0a5c}}
+/* ============ RESPONSIVE (tablet / phone) ============ */
+@media (max-width:900px){
+  body{padding-inline:8px;padding-bottom:24px;gap:14px}
+  .slide{aspect-ratio:auto;font-size:16px;border-radius:18px}
+  .brand,.arrow{display:none}
+
+  /* shared pill + logo */
+  .pill{inset-inline-start:12px;width:44px;top:20px;bottom:20px;border-radius:22px;padding:10px 0}
+  .pill span{font-size:15px}
+  .rotated-logo{width:24px}
+
+  /* shared form controls */
+  label,.lb{font-size:14px}
+  input[type=text],input[type=email],input[type=tel],textarea{font-size:16px;padding:11px 12px;border-radius:10px}
+  .row{flex-direction:column;align-items:stretch!important;gap:6px;margin-bottom:14px}
+  .row>label{width:auto!important;margin-inline-start:0!important}
+  .opts{gap:10px 16px;font-size:14px}
+  .opts label{font-size:14px;gap:8px}
+  input[type=radio],input[type=checkbox]{width:18px;height:18px;flex:none}
+  .h{font-size:16px;padding-bottom:4px;border-bottom-width:2px;border-end-end-radius:10px}
+
+  /* slide 1 */
+  .s1{min-height:520px}
+  .s1 .ph{inset:0}
+  .s1 .big{inset-inline-start:72px;inset-inline-end:14px;top:36px;bottom:36px;border-radius:26px}
+  .s1 h1{inset-inline-start:20px;top:24px;font-size:18vw;letter-spacing:-1px}
+  html[dir=rtl] .s1 h1{font-size:15vw;line-height:1.15;top:20px}
+  .s1 .d{inset-inline-end:16px;bottom:14px;font-size:14px}
+
+  /* slide 2 */
+  .s2{padding-bottom:24px}
+  .s2 .ph{position:relative;inset:auto;width:100%;height:130px}
+  .s2 .f{position:static;width:auto;padding:8px 18px 0}
+  .s2 .f[style*="text-align"]{text-align:start!important;padding-top:20px}
+
+  /* slide 3 */
+  .s3{padding:20px 18px 28px}
+  .s3 .h{font-size:14px!important}
+  .s3>div{position:static!important;width:auto!important;margin-bottom:22px}
+  .s3 div[style*="text-align"]{text-align:start!important;margin-bottom:12px!important}
+  .s3 .opts{margin-inline-start:0!important;gap:12px!important}
+  .up{grid-template-columns:repeat(3,1fr);gap:10px}
+  .up label{font-size:12px;gap:6px;border-radius:10px;padding:6px}
+  .up svg{width:26px;height:26px}
+  .up label img.upload-preview{border-radius:8px}
+  .deadline-row{flex-direction:column;align-items:stretch;gap:6px;margin-top:16px;margin-bottom:14px}
+  .date-field{width:100%}
+  .date-field input{height:46px;font-size:16px;border-radius:10px;padding:0 40px 0 12px}
+  .calendar-icon{font-size:18px;right:14px}
+
+  /* slide 4 */
+  .s4{padding-bottom:20px}
+  .s4 .ph{position:relative;inset:auto;width:auto;height:210px;margin-block-start:18px;margin-inline:70px 16px;border-radius:24px}
+  .s4 .ty{position:static;padding:20px 16px 6px;padding-inline:70px 16px;font-size:clamp(40px,11vw,90px)}
+  .s4 .c{position:static;padding:8px 16px 8px;padding-inline:70px 16px;font-size:16px;line-height:1.9}
+  .btn{font-size:16px;padding:10px 20px;border-radius:10px;margin-right:0;margin-inline-end:10px;margin-bottom:12px}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas-pro@1.5.8/dist/html2canvas-pro.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -354,31 +411,34 @@ $('send').onclick=function(){
   var btn = document.getElementById('dlpdf');
   var PAGE_W = 1100; // same as .slide max-width
 
-  function prepareClone(doc) {
+ function prepareClone(doc) {
     var isRtl = document.documentElement.dir === 'rtl';
+    var win = doc.defaultView;
 
     // text-like inputs + textarea -> div showing the value
     var sel = 'input[type=text],input[type=email],input[type=tel],input[type=date],textarea';
     var origs = document.querySelectorAll(sel);
     var clones = doc.querySelectorAll(sel);
     clones.forEach(function (c, i) {
-      var o = origs[i], cs = getComputedStyle(o);
+      var o = origs[i];
+      var cs = win.getComputedStyle(c);          // measure the clone (1200px layout), not the live page
       var val = o.value || '';
       if (o.type === 'date' && val) {
         var p = val.split('-');
         val = p[2] + ' / ' + p[1] + ' / ' + p[0];
       }
+      var isTA = o.tagName === 'TEXTAREA';
       var d = doc.createElement('div');
       d.textContent = val;
       d.style.cssText =
         'box-sizing:border-box;display:block;overflow:hidden;' +
-        'width:' + o.offsetWidth + 'px;height:' + o.offsetHeight + 'px;' +
+        'width:' + c.offsetWidth + 'px;height:' + c.offsetHeight + 'px;' +
         'background-color:' + cs.backgroundColor + ';' +
         'border-radius:' + cs.borderTopLeftRadius + ';' +
         'color:#fff;font-family:' + cs.fontFamily + ';' +
         'font-size:' + cs.fontSize + ';' +
-        'line-height:' + (o.tagName === 'TEXTAREA' ? '1.4' : (o.offsetHeight + 'px')) + ';' +
-        'padding:' + (o.tagName === 'TEXTAREA' ? '6px 8px' : '0 8px') + ';' +
+        'line-height:' + (isTA ? '1.4' : (c.offsetHeight + 'px')) + ';' +
+        'padding:' + (isTA ? '6px 8px' : '0 8px') + ';' +
         'white-space:pre-wrap;direction:' + (isRtl ? 'rtl' : 'ltr') + ';' +
         'text-align:' + (isRtl ? 'right' : 'left') + ';';
       c.parentNode.replaceChild(d, c);
@@ -387,7 +447,8 @@ $('send').onclick=function(){
     // checkboxes -> simple circles with a check mark
     var cbO = document.querySelectorAll('input[type=checkbox]');
     doc.querySelectorAll('input[type=checkbox]').forEach(function (c, i) {
-      var o = cbO[i], s = o.offsetWidth || 14;
+      var o = cbO[i];
+      var s = c.offsetWidth || 14;
       var d = doc.createElement('span');
       d.style.cssText =
         'display:inline-block;box-sizing:border-box;border-radius:50%;background:#2a0f80;' +
